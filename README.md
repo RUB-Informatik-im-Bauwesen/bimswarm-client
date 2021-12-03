@@ -3,7 +3,7 @@
 The client "template-cs-mvc" is a sample implementation for interacting in a toolchain and receiving and sending files in a BIMSWARM toolchain. Toolchains can be used according to the documentation. Furthermore, a client implementation of the openCDE API has been done to fully support a toolchain. Find information on BIMSWARM here: https://www.bimswarm.de/
 
 ## How to get started?
-### Requiremeents
+### Requirements
 - Microsoft Visual Studio / Visual Studio Code with C#/.NET build tools
 - built with.NET Core 5.0.4
 - based on MVC Pattern
