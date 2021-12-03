@@ -1,0 +1,51 @@
+﻿<h2>Datei anzeigen</h2>
+@using Bimswarm.Models.MiscModels
+@{ FileMetadataDto file = ViewBag.File;}
+<hr />
+@{ if (file != null)
+    {
+
+        <h1><span class="badge badge-@ConfigurationManager.AppSettings["swarm:color"]">@ViewBag.Name</span></h1>
+
+        <table class="table table-striped">
+            <tr>
+                <td width="10%"><b>NAME</b></td>
+                <td width="90%">@file.filename</td>
+            </tr>
+            <tr>
+                <td><b>VON USER</b></td>
+                <td>@file.user</td>
+            </tr>
+            <tr>
+                <td><b>VON PRODUCT</b></td>
+                <td>@file.productid</td>
+            </tr>
+            <tr>
+                <td><b>VON TOOLCHAIN</b></td>
+                <td>@file.toolchain.Id</td>
+            </tr>
+            <tr>
+                <td><b>FORMAT</b></td>
+                <td>@file.filetype.GetFormattedString()</td>
+            </tr>
+            <tr>
+                <td><b>DATUM</b></td>
+                <td>@file.date</td>
+            </tr>
+            <tr>
+                <td><b>Datei</b></td>
+                <td>
+                    <form method="post">
+                        <input id="filename" name="filename" type="hidden" value="@ViewBag.File.GetFileName()" />
+                        <input id="guid" name="guid" type="hidden" value="@ViewBag.File.guid" />
+                        <button class="btn btn-outline-secondary btn-sm rounded-0" type="submit">Datei herunterladen</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    }
+
+}
+
+<p style="display:none;">@ViewBag.Message</p>
+

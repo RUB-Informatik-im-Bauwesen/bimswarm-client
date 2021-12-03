@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    ViewBag.Title = "Einstellungen";
+}
+<div class="container">
+    <div class="clearfix mb-3">
+        <h1>Einstellungen</h1>
+    </div>
+    @{
+        if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="alert alert-info">
+                @ViewBag.Message
+            </div>
+        }
+
+
+        if (!Context.User.Identity.IsAuthenticated)
+        {
+            <div class="alert alert-danger">
+                Bitte vor der Benutzung eine USER-ID eingeben!
+            </div>
+        }
+    }
+    <div class="bg-light rounded-0 border p-3">
+        <p class="font-weight-bold">Konfiguration anpassen</p>
+        <form method="post">
+            <div class="form-group">
+                <label for="productId">Produkt-ID</label>
+                <input type="number" class="form-control" name="productId" id="productId" placeholder="Produkt-ID" value="@ViewBag.productid" required="">
+            </div>
+
+            <div class="form-group">
+                <label for="webEndpoint">BIMSWARM-Portal-Endpunkt</label>
+                <input type="text" class="form-control" name="webEndpoint" id="webEndpoint" placeholder="SWARM-Endpunkt" value="@ViewBag.webroot" required="">
+            </div>
+            <hr />
+            <p class="font-weight-bold">USER-ID</p>
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="userId" id="userId" placeholder="USER-ID" value="@ViewBag.userid" disabled>
+            </div>
+            <hr />
+            <p class="font-weight-bold">MAIL</p>
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="userId" id="userId" placeholder="USER-ID" value="@ViewBag.mail" disabled>
+            </div>
+
+            <hr />
+            <p class="font-weight-bold">TOKEN</p>
+
+            <div class="form-group">
+                <textarea type="text" class="form-control" name="token" id="token" placeholder="USER-ID" disabled rows="7">
+                    @ViewBag.token
+                    </textarea>
+            </div>
+
+            <hr />
+            <button class="btn btn-block btn-warning rounded-0" type="submit">ÄNDERN</button>
+        </form>
+    </div>
+
+</div>

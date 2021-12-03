@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title - BIMSWARM  Hackathon Template</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="~/css/site.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="~/lib/modernizr/modernizr-2.8.3.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-fixed-top bg-@ConfigurationManager.AppSettings["swarm:color"]">
+        <a class="navbar-brand bg-light text-body" style="padding: 5px;" href="~/Home/Index">
+            <img src="~/images/hack.png" height="30" class="d-inline-block align-top" alt="">
+        </a>
+        <span class="navbar-brand text-light"> Hackathon Template [PID:@ConfigurationManager.AppSettings["swarm:productID"]]</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav navbar-nav mr-auto">
+                <li class="nav-item"><a href="@Url.Action("Index", "Home")" class="nav-link"><span class="fa fa-info-circle"></span>&nbsp;Start</a></li>
+                @if (Context.User.Identity.IsAuthenticated)
+                {
+    <li class="nav-item"><a href="@Url.Action("Index", "Files")" class="nav-link"><span class="fa fa-file-o"></span>&nbsp;Dateien</a></li>
+                    <li class="nav-item"><a href="@Url.Action("Index", "Toolchain")" class="nav-link"><span class="fa fa-chain"></span>&nbsp;Toolchains</a></li>
+                                 
+                                                    <li class="nav-item"><a href="@Url.Action("Index", "Configuration")" class="nav-link"><span class="fa fa-cog"></span>&nbsp;Einstellungen</a></li>
+                                                                    <li class="nav-item"><a href="@Url.Action("Logout", "Account")" class="nav-link"><span class="fa fa-sign-out"></span>&nbsp;Logout</a></li>}
+            </ul>
+            <span class="navbar-text">
+                <span class="badge badge-secondary"><a><span class='fa fa-cubes'></span> Produkt-ID: @ConfigurationManager.AppSettings["swarm:productID"]</a></span>
+                @if (Context.User.Identity.IsAuthenticated)
+                {
+    <span class="badge badge-secondary">
+        <a><span class='fa fa-user-circle'></span> Benutzer: @Context.User.Identity.Name</a>
+    </span> }
+else
+{
+<a class="btn btn-block btn-primary btn-sm d-inline" href="https://bmwi-swarm-dev03.test-server.ag/sso/oauth/authorize?client_id=rub-id&response_type=code&scope=read" target="_blank">Mit BIMSWARM-SSO anmelden</a>}
+            </span>
+        </div>
+    </nav>
+
+    <br />
+
+    <div class="container-fluid body-content">
+        @RenderBody()
+        
+        <div class="fixed-bottom p-3">
+            <hr />
+            <footer>
+                <div class="row">
+                    <div class="col text-muted"><span>&copy; @DateTime.Now.Year - <a href="http://www.inf.bi.rub.de">RUB Informatik im Bauwesen</a></span></div>
+                    <div class="col text-right"><span class="text-right text-muted"> Version @GetType().Assembly.GetName().Version</span></div>
+                </div>
+
+            </footer>
+        </div>
+    </div>
+
+
+    <script src="~/lib/popperjs/popper.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+    </script>
+</body>
+</html>

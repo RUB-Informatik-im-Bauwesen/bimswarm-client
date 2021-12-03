@@ -1,0 +1,13 @@
+﻿@using System.Configuration
+
+@{
+    ViewBag.Title = "ConnectionError";
+}
+
+<h2>ConnectionError</h2>
+
+<div class="alert alert-danger">
+    <h3>Es konnte keine Verbindung zum SWARM-Portal unter  @ConfigurationManager.AppSettings["swarm:endpoint"] hergestellt werden.</h3>
+    Bitte überprüfen Sie die Verbindung und geben Sie ggf. eine korrekte URL des SWARM-Portals an.
+</div>
+

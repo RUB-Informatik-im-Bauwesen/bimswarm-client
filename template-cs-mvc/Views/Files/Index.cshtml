@@ -1,0 +1,86 @@
+﻿@using Bimswarm.Models.MiscModels
+@using Bimswarm.Models.CdeModels
+@using Bimswarm.Models.ToolchainModels
+
+@{
+    ViewBag.Title = "Dateien verwalten";
+}
+
+<script>
+    function addItem() {
+        $("#add").show();
+    }
+</script>
+<div class="container">
+    <div class="clearfix mb-3">
+        <button onclick="addItem()" class="btn btn-primary btn-sm rounded-0 float-right">Upload <span class='fa fa-plus'></span></button>
+        <h1>Dateiexplorer</h1>
+    </div>
+    <div id="add" style="padding: 5px; display: none" class="bg-light rounded">
+        <h4>Datei hinzufügen</h4>
+        <form method="post" class="bg-light rounded border form-group" enctype="multipart/form-data" style="padding: 10px; margin: 15px;">
+            <div class="row">
+                <div class="col-1">
+                    <span class="text-muted small">Datei</span>
+                </div>
+                <div class="col">
+                    <div class="input-group">
+
+                        <input type="file" class="form-control form-control-sm" id="files" name="files" placeholder="Datei" required>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <span class="text-muted small">Dateityp</span>
+                </div>
+                <div class="col">
+                    <div class="input-group">
+                        <select class="form-control form-control-sm" id="filetype" name="filetype" required>
+                            @{
+                                foreach (FormatType type in ViewBag.Types)
+                                {
+                                    <option value="@type.id">@type.GetFormattedString()</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col text-right">
+                    <button type="submit" class="btn btn-sm btn-outline-success rounded-0">Hochladen</button>
+
+                </div>
+            </div>
+        </form>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Datei</td>
+                <td>Toolchain-Referenz</td>
+                <td>Benutzer</td>
+                <td style="text-align: center">Details</td>
+                <td style="text-align: center">Löschen</td>
+            </tr>
+
+        </thead>
+        <tbody>
+            @{
+                foreach (FileMetadataDto fileItem in ViewBag.Files)
+                {
+                    <tr>
+                        <td><span class="small">@fileItem.filename</span> </td>
+                        <td><span class="small">[in Toolchain-ID @fileItem.toolchain.Id von Produkt-ID @fileItem.productid]</span></td>
+                        <td><span class="small">@fileItem.user </span></td>
+                        <td style="text-align: center">@Html.ActionLink("Details", "ViewFile", "Files", new { id = fileItem.guid }, new { @class = "btn btn-link btn-sm" })</td>
+                        <td style="text-align: center">
+                            <form method="post" asp-action="DeleteFile" asp-controller="Files">
+                                <input type="hidden" id="guid" name="guid" value="@fileItem.guid" />
+                                <input type="hidden" id="filename" name="filename" value="@fileItem.GetFileName()" />
+                                <button class="btn btn-link btn-sm" type="submit">Löschen</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

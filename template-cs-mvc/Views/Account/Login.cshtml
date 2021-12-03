@@ -1,0 +1,45 @@
+﻿﻿@using Microsoft.AspNetCore.Http
+
+@{
+    ViewBag.Title = "Anmeldung";
+}
+
+<div class="jumbotron text-center">
+    <img src="~/images/hack.png" class="d-inline-block align-top align-content-center" alt="">
+</div>
+
+
+<div class="container">
+
+     @{
+        if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+        <div class="alert alert-info w-50 m-2 p-3 mx-auto">
+
+@ViewBag.Message
+        </div>
+        }
+
+
+        if (!Context.User.Identity.IsAuthenticated)
+        {
+        <div class="alert alert-danger w-50 m-2 p-3 mx-auto text-center">
+            Nicht angemeldet.
+            </div>
+        }
+    }
+    <div class="bg-light rounded border w-50 m-2 p-3 mx-auto">
+        <p class="font-weight-bold mb-3 text-center">Anmeldung</p>
+        <form method="post" class="w-50 mx-auto">
+
+            <a class="btn btn-block btn-primary" href="https://bmwi-swarm-dev03.test-server.ag/sso/oauth/authorize?client_id=rub-id&response_type=code&scope=read" target="_blank">Mit BIMSWARM-SSO anmelden</a>
+
+
+
+        </form>
+
+    </div>
+</div>
+
+
+

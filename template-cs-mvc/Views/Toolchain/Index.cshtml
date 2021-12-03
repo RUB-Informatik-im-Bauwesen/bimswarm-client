@@ -1,0 +1,50 @@
+﻿@using Bimswarm.Models.ToolchainModels;
+@{
+    ViewBag.Title = "Toolchains";
+}
+
+<div class="container">
+    <div class="clearfix mb-3">
+        <h1>Toolchains</h1>
+    </div>
+    <div id="toolchainPanel" class="panel">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th class="mr-auto">ID und Name</th>
+                    <th style="text-align:center;"></th>
+                    <th style="text-align: right;">Aktionen</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (Toolchain template in ViewBag.ToolchainsTemplates)
+                    {
+                        <tr class="w-100">
+                            <td class="small mr-auto"><span class="text-muted">[@template.Id]</span>&nbsp;@template.Name</td>
+                            <td>
+                            </td>
+                            <td style="text-align: right;" class="small">
+                                <a href="@Url.Action("Instance", "Toolchain", new { id = template.Id })" class="btn btn-outline-primary  btn-sm"><span class='fa fa-wrench'></span>&nbsp;Details</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                @if (ViewBag.ToolchainsTemplates.Count == 0)
+                {
+                    <tr class="w-100">
+                        <td class="small mr-auto">
+                            <span class="text-dark">
+                                Keine laufenden Toolchains gefunden</span>
+                        </td>
+                        <td>
+                        </td>
+                        <td style="text-align: right;" class="small">
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

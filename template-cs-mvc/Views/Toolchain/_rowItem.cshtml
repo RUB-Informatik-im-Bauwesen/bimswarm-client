@@ -1,0 +1,143 @@
+﻿@using System.IO
+@using Bimswarm
+@using Newtonsoft.Json
+@using Bimswarm.Models.MiscModels
+@using Bimswarm.Models.ToolchainModels
+@using Bimswarm.Services
+@using Bimswarm.Identity
+@model Bimswarm.Models.ToolchainModels.ToolchainItem
+@{ var productid = Int64.Parse(ConfigurationManager.AppSettings["swarm:productID"]);}
+@{
+    var background = "";
+    if (Model.Status == ItemStatus.FAILED)
+    {
+        background = "danger";
+    }
+    if (Model.Status == ItemStatus.SUCCESS)
+    {
+        background = "success";
+    }
+    if (Model.Status == ItemStatus.PENDING)
+    {
+        background = "secondary";
+    }
+    if (Model.Status == ItemStatus.WORKING)
+    {
+        background = "warning";
+    }
+}
+<tr class="border text-@background">
+    <td>@Model.Id</td>
+    <td>@Model.Type</td>
+    <td>
+        @if (Model.ProductId != (long)-1)
+        {
+            <div class="badge badge-@background">
+                <span class="fa fa-circle"></span>&nbsp;@Model.ProductId
+            </div>
+        }
+    </td>
+    <td>
+        @foreach (var suc in Model.Successors)
+        {
+            <div class="badge badge-secondary">@suc</div>
+        }
+    </td>
+    <td>
+        @if (Model.InputContentId != null)
+        {
+            if (productid == Model.ProductId && Model.Status == ItemStatus.WORKING)
+            {
+                foreach (long id in (Model.InputContentId))
+                {
+                    <form method="post" asp-controller="Toolchain" asp-action="GetAttachment" asp-route-instanceid="@Model.RelInstance" asp-route-containerid="@Model.CdeContainer" asp-route-contentid="@id">
+                        <button type="submit" class="btn btn-primary btn-sm btn-block">
+                            <span class='fa fa-download'></span>&nbsp;Input
+                            <div class="badge badge-light badge-pill ml-auto">
+                                Content @id
+                            </div>
+                        </button>
+                    </form>
+                }
+            }
+            else
+            {
+                foreach (long id in (Model.InputContentId))
+                {
+                    <button type="submit" class="btn btn-light btn-sm btn-block disabled">
+                        <span class='fa fa-download'></span>&nbsp;Input
+                        <div class="badge badge-dark badge-pill ml-auto">
+                            Content @id
+                        </div>
+                    </button>
+                }
+
+            }
+        }
+
+    </td>
+    <td>
+        @if (Model.OutputContentIds != null)
+        {
+            DirectoryInfo d = new DirectoryInfo(LocalFileService.GetUploadDirectory());
+            List<FileMetadataDto> list = d.GetFiles("*.json").Select(file => JsonConvert.DeserializeObject<FileMetadataDto>(System.IO.File.ReadAllText(file.FullName))).ToList();
+
+            IEnumerable<FileMetadataDto> files = list.Where(m => m != null && m.user == Context.User.FindFirst(ClaimTypeHandler.EMail).Value);
+
+            foreach (ToolchainOutput outputID in Model.OutputContentIds)
+            {
+
+                if (productid == Model.ProductId && Model.Status == ItemStatus.WORKING)
+                {
+
+                    <form method="post" asp-controller="Toolchain" asp-action="PostAttachment" asp-route-containerid="@Model.CdeContainer" asp-route-contentid="@outputID.outputContentId" asp-route-instanceid="@Model.RelInstance" asp-route-itemid="@Model.Id">
+
+                        <button type="submit" class="btn btn-primary btn-sm btn-block">
+                            <span class='fa fa-upload'></span>&nbsp;Output
+                            <div class="badge badge-light badge-pill  ml-auto">
+                                Content @outputID.outputContentId (Format: @outputID.formatTypeId)
+                            </div>
+                        </button>
+                        <select id="file" name="file" class="form-control-file form-control form-control-sm">
+                            @foreach (FileMetadataDto file in files)
+                            {
+                                <option value="@file.GetFileName()">@file.filename</option>
+                            }
+                        </select>
+                    </form>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-light btn-sm btn-block disabled">
+                        <span class='fa fa-upload'></span>&nbsp;Output
+                        <div class="badge badge-dark badge-pill  ml-auto">
+                            Content @outputID.outputContentId (Format: @outputID.formatTypeId)
+                        </div>
+                    </button>
+                }
+            }
+        }
+    </td>
+    <td class="text-right">
+
+        @if (productid == Model.ProductId && Model.Status != ItemStatus.SUCCESS && Model.Status != ItemStatus.FAILED)
+        {
+            <form id="itemstatus" method="post" asp-controller="Toolchain" asp-action="UpdateStatus" asp-route-instanceid="@Model.RelInstance" asp-route-itemid="@Model.Id" class="form-inline d-inline">
+                <select id="status" class="form-control d-inline" name="status" style="font-size: 12px;">
+
+                    @if (Model.Status == ItemStatus.PENDING)
+                    {
+                        <option value="@ItemStatus.WORKING">@ItemStatus.WORKING</option>
+                    }
+                    @if (Model.Status == ItemStatus.WORKING)
+                    {
+                        <option value="@ItemStatus.SUCCESS">@ItemStatus.SUCCESS</option>
+                        <option value="@ItemStatus.FAILED">@ItemStatus.FAILED</option>
+                    }
+                </select>
+                <div style="width: 10px;" class="d-inline"></div>
+                <button type="submit" class="btn btn-outline-primary btn-sm d-inline">Update&nbsp;<span class='fa fa-refresh'></span></button>
+            </form>
+        }
+    </td>
+</tr>

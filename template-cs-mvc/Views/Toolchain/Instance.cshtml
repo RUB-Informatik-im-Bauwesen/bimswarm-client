@@ -1,0 +1,197 @@
+﻿
+@using Bimswarm.Models.ToolchainModels;
+@using Bimswarm.Models.CdeModels;
+@{
+    ViewBag.Title = "Toolketteninstanz anzeigen";
+}
+@model Toolchain
+
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<script>
+    function edit() {
+        $("#view").hide();
+        $("#edit").show();
+        $("#toggle-edit").hide();
+        $("#toggle-view").show();
+    }
+    function view() {
+        $("#view").show();
+        $("#edit").hide();
+        $("#toggle-edit").show();
+        $("#toggle-view").hide();
+    }
+    function addItem() {
+        $("#add").show();
+
+    }
+     function createNetwork(items) {
+       var nodes = new vis.DataSet([]);
+       var edges = new vis.DataSet([]);
+
+       var container = document.getElementById("visnetwork");
+       var data = {
+           nodes: nodes,
+           edges: edges
+       };
+
+         items.forEach(item => {
+             let itemType = "";
+             let itemShape = "ellipse";
+             let itemColor = "";
+
+             switch (item.status) {
+             case 0:
+                     itemColor = "#D3D3D3";
+                     break;
+             case 2:
+                     itemColor = "#f0ad4e";
+                     break;
+             case 1:
+                     itemColor = "#5cb85c";
+                     break;
+             case 3:
+                     itemColor = "#d9534f";
+                 break;
+
+             }
+             switch (item.type) {
+                 case 0:
+                     itemType = "ACTIVITYITEM";
+                     itemShape = "box";
+
+                     break;
+                 case 1:
+                     itemType = "ENDITEM";
+                     itemShape = "circle";
+                     break;
+                 case 2:
+                     itemType = "FORKITEM";
+                     itemShape = "diamond";
+                     break;
+                 case 3:
+                     itemType = "JOINITEM";
+                     itemShape = "diamond";
+                     break;
+                 case 4:
+                     itemType = "STARTITEM";
+                     itemShape = "circle";
+                     break;
+             }
+             let nodeHover = `Item-ID: ${item.id.toString()}<br>Produkt-ID:${item.productId.toString()}`;
+             nodes.add({ id: item.id, label: itemType, title: nodeHover, shape: itemShape, color: itemColor });
+             if (item.outputContentIds !== null) {
+                 item.outputContentIds.forEach(output => {
+                     nodes.add({ id: `cde-${output.outputContentId}`, label: `Content-ID: ${output.outputContentId}`, opacity: 0.2 ,shape: "database", color: "#D3D3D3" });
+                     edges.add({ from: item.id, to: `cde-${output.outputContentId}`, dashes: true });
+                 });
+             }
+
+             if (item.inputContentId !== null) {
+                 item.inputContentId.forEach(input => {
+
+                     edges.add({ to: item.id, from: `cde-${input}`, dashes: true  });
+                 });
+             }
+
+             item.successors.forEach(suc => {
+                 edges.add({ from: item.id, to: suc });
+            });
+
+         });
+
+         var options = {
+             autoResize: true,
+             edges: {
+                 arrows: "to", color: "#000000"
+             },
+             layout: {
+                 hierarchical: {
+                     enabled: true,
+                     direction: "LR"
+                     //sortMethod: "directed"
+                 }
+             },
+             interaction: {
+                 dragView: false,
+                 dragNodes: true,
+                 zoomView: false,
+                 navigationButtons: true
+             }
+         };
+       var network = new vis.Network(container, data, options);
+    }
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Toolchain/ToolchainViewer/@Model.Id.ToString()',
+            success: function (data) {
+                console.log(data);
+                createNetwork(data.items);
+            },
+            statusCode: {
+                401: function (content) { alert('Unauthorized'); },
+                404: function (content) { alert('Not Found'); },
+                400: function (content) { alert('Bad Request'); }
+            },
+            error: function (req, status, errorObj) {
+                // handle status === "timeout"
+                // handle other errors
+            }
+        });
+    });
+</script>
+<div class="container">
+    @{ var productid = Int64.Parse(ConfigurationManager.AppSettings["swarm:productID"]);}
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-0 text-right btn-sm float-right" style="z-index:9000">Zurück</a>
+    <h2>@ViewBag.Title</h2>
+    <a href="@Url.Action("ToolchainViewer","Toolchain",new {id=Model.Id})" class="btn btn-outline-secondary rounded-0 text-right btn-sm float-right m-3" style="z-index:9000">View Raw JSON</a>
+    <div class="border p-2">
+        <div class="media">
+            <img src="~/images/icon.png" width="64" height="64" class="mr-3" alt="SWARM LOGO">
+            <div class="media-body" id="view">
+                <h5 class="mt-0">@Model.Name  (ID=@Model.Id)</h5>
+                @Html.Raw(Model.Description)
+            </div>
+        </div>
+    </div>
+    <hr />
+
+    <div class="card rounded-0">
+        <div class="card-header ">
+            <h5>Übersicht</h5>
+        </div>
+        <div class="card-body bg-light">
+            <div class="w-100" style="height: 300px;" id="visnetwork"></div>
+        </div>
+    </div>
+    <hr />
+    <div class="card rounded-0">
+        <div class="card-header clearfix">
+            <h5>Items</h5>
+        </div>
+        <div class="card-body p-0 w-100">
+            <table class="table table-bordered table-striped table-sm w-100 p-0 m-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Product-ID</th>
+                        <th>Nachfolger</th>
+                        <th>Input</th>
+                        <th>Output</th>
+                        <th class="text-right">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{var orderedItems = Model.Items.OrderBy(m => m.Id);}
+                    @{foreach (ToolchainItem item in orderedItems)
+                        {
+                            <partial name="_rowItem" model="item" />
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
